@@ -35,7 +35,7 @@ def main():
 
     #bb_imgs : list  , bb_accs : list
     bb_imgs , bb_accs = init_bb_imgs()
-    kk_imgs:dict = get_kk_imgs()
+    kk_imgs: dict = get_kk_imgs()
 
     while True:
         for event in pg.event.get():
@@ -44,8 +44,8 @@ def main():
         screen.blit(bg_img, [0, 0])
 
         screen.blit(bb_img, bb_rct)
-        avx :int= vx * bb_accs[min(tmr//500, 9)]
-        avy :int = vy * bb_accs[min(tmr//500, 9)]
+        avx: int= vx * bb_accs[min(tmr//500, 9)]
+        avy: int = vy * bb_accs[min(tmr//500, 9)]
         bb_rct.move_ip(avx, avy)
         bb_img = bb_imgs[min(tmr//500, 9)]
         bb_rct.width = bb_img.get_rect().width
@@ -105,8 +105,9 @@ def gameover(screen: pg.Surface) -> None:
     """
     gameover の Docstring
     
-    :param screen: こうかとんと赤い球が衝突した際にgameover画面を表示するための関数
+    こうかとんと赤い球が衝突した際にgameover画面を表示するための関数
     :type screen: pg.Surface
+    :return: None
     """
     bl_png = pg.Surface((WIDTH, HEIGHT))
     bl_png.set_alpha(200)
@@ -122,6 +123,8 @@ def gameover(screen: pg.Surface) -> None:
 def init_bb_imgs() -> tuple[list[pg.Surface], list[int]]:
     """
     init_bb_imgs の Docstring
+
+    赤い球の加速度と画像リストを作成す関数
     
     :return: 赤い球の画像リストと加速度リスト
     :rtype: tuple[list[Surface], list[int]]
@@ -137,7 +140,7 @@ def init_bb_imgs() -> tuple[list[pg.Surface], list[int]]:
 
 def get_kk_imgs() -> dict[tuple[int, int], pg.Surface]:
     """
-    get_kk_imgs の Docstring
+    こうかとんの画像を方向ごとに格納した辞書を作成する関数
     
     :return: こうかとんの画像を方向ごとに格納した辞書
     :rtype: dict[tuple[int, int], Surface]
