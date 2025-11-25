@@ -1,7 +1,8 @@
 import os
 import sys
-import pygame as pg
 import random
+import pygame as pg
+
 
 
 WIDTH, HEIGHT = 1100, 650
@@ -24,6 +25,7 @@ def main():
 
     bb_rct = bb_img.get_rect()
     bb_rct.center = random.randint(0, WIDTH), random.randint(0, HEIGHT)
+    vx, vy = 5, 5
 
     DELTA = {pg.K_UP:    (0, -5),
              pg.K_DOWN:  (0, +5),
@@ -37,7 +39,7 @@ def main():
         screen.blit(bg_img, [0, 0])
 
         screen.blit(bb_img, bb_rct)
-        bb_rct.move_ip(5, 5)
+        bb_rct.move_ip(vx, vy)
 
         key_lst = pg.key.get_pressed()
         sum_mv = [0, 0]
@@ -57,10 +59,26 @@ def main():
 
         kk_rct.move_ip(sum_mv)
         screen.blit(kk_img, kk_rct)
+
+        if not check_bound(kk_rct):
+            kk_rct.move_ip(-sum_mv[0], -sum_mv[1])
+
+        if not check_bound(bb_rct):
+            if bb_rct.left < 0 or bb_rct.right > WIDTH:
+                vx *= -1
+            if bb_rct.top < 0 or bb_rct.bottom > HEIGHT:
+                vy *= -1
+
         pg.display.update()
         tmr += 1
         clock.tick(50)
 
+def check_bound(rct):
+    if rct.left < 0 or rct.right > WIDTH:
+        return False
+    if rct.top < 0 or rct.bottom > HEIGHT:
+        return False
+    return True
 
 if __name__ == "__main__":
     pg.init()
