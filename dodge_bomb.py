@@ -33,6 +33,8 @@ def main():
              pg.K_LEFT:  (-5, 0),
              pg.K_RIGHT: (+5, 0)}
 
+    init_bb_imgs()
+
     while True:
         for event in pg.event.get():
             if event.type == pg.QUIT: 
@@ -40,7 +42,14 @@ def main():
         screen.blit(bg_img, [0, 0])
 
         screen.blit(bb_img, bb_rct)
-        bb_rct.move_ip(vx, vy)
+        avx = vx * bb_accs[min(tmr//500, 9)]
+        avy = vy * bb_accs[min(tmr//500, 9)]
+        bb_rct.move_ip(avx, avy)
+        bb_img = bb_imgs[min(tmr//500, 9)]
+        bb_rct.width = bb_img.get_rect().width
+        bb_rct.height = bb_img.get_rect().height
+        bb_img.set_colorkey((0, 0, 0))
+        
 
         key_lst = pg.key.get_pressed()
         sum_mv = [0, 0]
@@ -72,8 +81,10 @@ def main():
 
         pg.display.update()
         if kk_rct.colliderect(bb_rct):
+            gameover(pg.display.get_surface())
             return
         tmr += 1
+        print(tmr)
         clock.tick(50)
 
 def check_bound(rct):
@@ -101,9 +112,30 @@ def gameover(screen: pg.Surface) -> None:
     pg.display.update()
     time.sleep(5)
 
+def init_bb_imgs() -> tuple[list[pg.Surface], list[int]]:
+    global bb_imgs, bb_accs
+    bb_imgs = []
+    for r in range(1, 11):
+        bb_img = pg.Surface((20*r, 20*r))
+        pg.draw.circle(bb_img, (255, 0, 0), (10*r, 10*r), 10*r)
+        bb_imgs.append(bb_img)
+    bb_accs = [i for i in range(1, 11)]
+
+def get_kk_imgs() -> dict[tuple[int, int], pg.Surface]:
+    kk_dict = {
+        (0, 0): pg.transform.rotozoom(pg.image.load("fig/3.png"), 0, 1),
+        (5, 0): pg.transform.rotozoom(pg.image.load("fig/3.png"), 0, 1),
+        (5, -5): pg.transform.rotozoom(pg.image.load("fig/3.png"), 45, 1),
+        (0, -5): pg.transform.rotozoom(pg.image.load("fig/3.png"), 90, 1),
+        (-5, -5): pg.transform.rotozoom(pg.image.load("fig/3.png"), 135, 1),
+        (-5, 0): pg.transform.rotozoom(pg.image.load("fig/3.png"), 180, 1),
+        (-5, 5): pg.transform.rotozoom(pg.image.load("fig/3.png"), 225, 1),
+        (0, 5): pg.transform.rotozoom(pg.image.load("fig/3.png"), 270, 1),
+        (5, 5): pg.transform.rotozoom(pg.image.load("fig/3.png"), 315, 1),
+    }
+
 if __name__ == "__main__":
     pg.init()
     main()
-    gameover(pg.display.get_surface())
     pg.quit()
     sys.exit()
