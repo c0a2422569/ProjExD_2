@@ -33,7 +33,8 @@ def main():
              pg.K_LEFT:  (-5, 0),
              pg.K_RIGHT: (+5, 0)}
 
-    init_bb_imgs()
+    bb_imgs, bb_accs = init_bb_imgs()
+    kk_imgs = get_kk_imgs()
 
     while True:
         for event in pg.event.get():
@@ -67,7 +68,10 @@ def main():
                 sum_mv[0] += mv[0]
                 sum_mv[1] += mv[1]
 
+        print(sum_mv)
+
         kk_rct.move_ip(sum_mv)
+        kk_img = kk_imgs[tuple(sum_mv)]
         screen.blit(kk_img, kk_rct)
 
         if not check_bound(kk_rct):
@@ -84,7 +88,7 @@ def main():
             gameover(pg.display.get_surface())
             return
         tmr += 1
-        print(tmr)
+        #print(tmr)
         clock.tick(50)
 
 def check_bound(rct):
@@ -113,26 +117,30 @@ def gameover(screen: pg.Surface) -> None:
     time.sleep(5)
 
 def init_bb_imgs() -> tuple[list[pg.Surface], list[int]]:
-    global bb_imgs, bb_accs
     bb_imgs = []
     for r in range(1, 11):
         bb_img = pg.Surface((20*r, 20*r))
         pg.draw.circle(bb_img, (255, 0, 0), (10*r, 10*r), 10*r)
         bb_imgs.append(bb_img)
     bb_accs = [i for i in range(1, 11)]
+    return bb_imgs, bb_accs
+
 
 def get_kk_imgs() -> dict[tuple[int, int], pg.Surface]:
+    img = pg.image.load("fig/3.png")
+    reverse_img = pg.transform.flip(img, True, False)
     kk_dict = {
-        (0, 0): pg.transform.rotozoom(pg.image.load("fig/3.png"), 0, 1),
-        (5, 0): pg.transform.rotozoom(pg.image.load("fig/3.png"), 0, 1),
-        (5, -5): pg.transform.rotozoom(pg.image.load("fig/3.png"), 45, 1),
-        (0, -5): pg.transform.rotozoom(pg.image.load("fig/3.png"), 90, 1),
-        (-5, -5): pg.transform.rotozoom(pg.image.load("fig/3.png"), 135, 1),
-        (-5, 0): pg.transform.rotozoom(pg.image.load("fig/3.png"), 180, 1),
-        (-5, 5): pg.transform.rotozoom(pg.image.load("fig/3.png"), 225, 1),
-        (0, 5): pg.transform.rotozoom(pg.image.load("fig/3.png"), 270, 1),
-        (5, 5): pg.transform.rotozoom(pg.image.load("fig/3.png"), 315, 1),
+        (0, 0): pg.transform.rotozoom(reverse_img, 0, 1),
+        (5, 0): pg.transform.rotozoom(reverse_img, 0, 1),
+        (5, -5): pg.transform.rotozoom(reverse_img, 45, 1),
+        (0, -5): pg.transform.rotozoom(reverse_img, 90, 1),
+        (-5, -5): pg.transform.rotozoom(img, -45, 1),
+        (-5, 0): pg.transform.rotozoom(img, 0, 1),
+        (-5, 5): pg.transform.rotozoom(img, 45, 1),
+        (0, 5): pg.transform.rotozoom(reverse_img, -90, 1),
+        (5, 5): pg.transform.rotozoom(reverse_img, -45, 1),
     }
+    return kk_dict
 
 if __name__ == "__main__":
     pg.init()
