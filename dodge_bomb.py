@@ -1,6 +1,7 @@
 import os
 import sys
 import random
+import time
 import pygame as pg
 
 
@@ -70,6 +71,8 @@ def main():
                 vy *= -1
 
         pg.display.update()
+        if kk_rct.colliderect(bb_rct):
+            return
         tmr += 1
         clock.tick(50)
 
@@ -80,8 +83,27 @@ def check_bound(rct):
         return False
     return True
 
+def gameover(screen: pg.Surface) -> None:
+    """
+    gameover の Docstring
+    
+    :param screen: こうかとんと赤い球が衝突した際にgameover画面を表示するための関数
+    :type screen: pg.Surface
+    """
+    bl_png = pg.Surface((WIDTH, HEIGHT))
+    bl_png.set_alpha(200)
+    text = pg.font.Font(None, 100).render("GAME OVER", True, (255, 255, 255))
+    bl_png.blit(text, [WIDTH/2 - text.get_width()/2, HEIGHT/2 - text.get_height()/2])
+    kt_png = pg.image.load("fig/0.png")
+    bl_png.blit(kt_png, [250, HEIGHT/2 - text.get_height()/2])
+    bl_png.blit(kt_png, [850 - kt_png.get_width(), HEIGHT/2 - text.get_height()/2])
+    screen.blit(bl_png, [0, 0])
+    pg.display.update()
+    time.sleep(5)
+
 if __name__ == "__main__":
     pg.init()
     main()
+    gameover(pg.display.get_surface())
     pg.quit()
     sys.exit()
