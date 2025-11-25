@@ -33,8 +33,9 @@ def main():
              pg.K_LEFT:  (-5, 0),
              pg.K_RIGHT: (+5, 0)}
 
-    bb_imgs, bb_accs = init_bb_imgs()
-    kk_imgs = get_kk_imgs()
+    #bb_imgs : list  , bb_accs : list
+    bb_imgs , bb_accs = init_bb_imgs()
+    kk_imgs:dict = get_kk_imgs()
 
     while True:
         for event in pg.event.get():
@@ -43,8 +44,8 @@ def main():
         screen.blit(bg_img, [0, 0])
 
         screen.blit(bb_img, bb_rct)
-        avx = vx * bb_accs[min(tmr//500, 9)]
-        avy = vy * bb_accs[min(tmr//500, 9)]
+        avx :int= vx * bb_accs[min(tmr//500, 9)]
+        avy :int = vy * bb_accs[min(tmr//500, 9)]
         bb_rct.move_ip(avx, avy)
         bb_img = bb_imgs[min(tmr//500, 9)]
         bb_rct.width = bb_img.get_rect().width
@@ -68,7 +69,7 @@ def main():
                 sum_mv[0] += mv[0]
                 sum_mv[1] += mv[1]
 
-        print(sum_mv)
+        #print(sum_mv)
 
         kk_rct.move_ip(sum_mv)
         kk_img = kk_imgs[tuple(sum_mv)]
@@ -76,6 +77,8 @@ def main():
 
         if not check_bound(kk_rct):
             kk_rct.move_ip(-sum_mv[0], -sum_mv[1])
+
+        vx, vy = clac_orientation(bb_rct, kk_rct, (vx, vy))
 
         if not check_bound(bb_rct):
             if bb_rct.left < 0 or bb_rct.right > WIDTH:
@@ -117,19 +120,31 @@ def gameover(screen: pg.Surface) -> None:
     time.sleep(5)
 
 def init_bb_imgs() -> tuple[list[pg.Surface], list[int]]:
-    bb_imgs = []
+    """
+    init_bb_imgs の Docstring
+    
+    :return: 赤い球の画像リストと加速度リスト
+    :rtype: tuple[list[Surface], list[int]]
+    """
+    bb_imgs :list = []
     for r in range(1, 11):
         bb_img = pg.Surface((20*r, 20*r))
         pg.draw.circle(bb_img, (255, 0, 0), (10*r, 10*r), 10*r)
         bb_imgs.append(bb_img)
-    bb_accs = [i for i in range(1, 11)]
+    bb_accs:list = [i for i in range(1, 11)]
     return bb_imgs, bb_accs
 
 
 def get_kk_imgs() -> dict[tuple[int, int], pg.Surface]:
+    """
+    get_kk_imgs の Docstring
+    
+    :return: こうかとんの画像を方向ごとに格納した辞書
+    :rtype: dict[tuple[int, int], Surface]
+    """
     img = pg.image.load("fig/3.png")
     reverse_img = pg.transform.flip(img, True, False)
-    kk_dict = {
+    kk_dict:dict = {
         (0, 0): pg.transform.rotozoom(reverse_img, 0, 1),
         (5, 0): pg.transform.rotozoom(reverse_img, 0, 1),
         (5, -5): pg.transform.rotozoom(reverse_img, 45, 1),
@@ -141,6 +156,21 @@ def get_kk_imgs() -> dict[tuple[int, int], pg.Surface]:
         (5, 5): pg.transform.rotozoom(reverse_img, -45, 1),
     }
     return kk_dict
+
+def clac_orientation(org: pg.Rect, dst: pg.Rect, current_xy: tuple[float, float]) -> tuple[float, float]:
+    dx = org.centerx - dst.centerx
+    dy = org.centery - dst.centery
+
+    distance = (dx**2 + dy**2) ** 0.5
+    if distance < 300:
+        vx, vy = vx, vy
+    elif distance != 0:
+        speed = 50 ** 0.5
+        vx = -1 * speed * dx / distance
+        vy = -1 * speed * dy / distance
+    else:
+        vx, vy = vx, vy
+    return vx, vy
 
 if __name__ == "__main__":
     pg.init()
